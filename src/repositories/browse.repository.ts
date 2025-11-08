@@ -3,15 +3,23 @@ import { ENDPOINTS } from '@/config/api';
 import type { BrowseListResponse, FoldersListResponse, FolderDetailResponse } from '@/types/models';
 
 class BrowseRepository {
-  async listBrowse(page = 1, pageSize = 20): Promise<BrowseListResponse> {
+  async listBrowse(page = 1, pageSize = 20, search?: string): Promise<BrowseListResponse> {
     return httpService.get<BrowseListResponse>(ENDPOINTS.browse, {
-      params: { page, page_size: pageSize },
+      params: {
+        page,
+        page_size: pageSize,
+        ...(search && { q: search }),
+      },
     });
   }
 
-  async listFolders(page = 1, pageSize = 20): Promise<FoldersListResponse> {
+  async listFolders(page = 1, pageSize = 20, search?: string): Promise<FoldersListResponse> {
     return httpService.get<FoldersListResponse>(ENDPOINTS.folders, {
-      params: { page, page_size: pageSize },
+      params: {
+        page,
+        page_size: pageSize,
+        ...(search && { q: search }),
+      },
     });
   }
 

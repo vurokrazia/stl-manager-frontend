@@ -8,18 +8,18 @@ const QUERY_KEYS = {
   folder: (id: string) => ['folder', id] as const,
 };
 
-export function useBrowse(page = 1, pageSize = 20) {
+export function useBrowse(page = 1, pageSize = 20, search?: string) {
   return useQuery({
-    queryKey: [...QUERY_KEYS.browse, page, pageSize],
-    queryFn: () => browseRepository.listBrowse(page, pageSize),
+    queryKey: [...QUERY_KEYS.browse, page, pageSize, search],
+    queryFn: () => browseRepository.listBrowse(page, pageSize, search),
   });
 }
 
 
-export function useFolders(page = 1, pageSize = 20) {
+export function useFolders(page = 1, pageSize = 20, search?: string) {
   return useQuery({
-    queryKey: [...QUERY_KEYS.folders, page, pageSize],
-    queryFn: () => browseRepository.listFolders(page, pageSize),
+    queryKey: [...QUERY_KEYS.folders, page, pageSize, search],
+    queryFn: () => browseRepository.listFolders(page, pageSize, search),
   });
 }
 

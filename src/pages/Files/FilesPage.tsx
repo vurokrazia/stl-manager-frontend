@@ -1,61 +1,37 @@
 /**
- * Files Page - List and search files
+ * Files Page - List and search files (View)
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Table, Input, Select, Tag, Space, Button, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
-import { useFiles, useReclassifyFile, useUpdateCategories } from '@/hooks/useFiles';
-import { useCategories } from '@/hooks/useCategories';
 import { formatBytes, formatFileType, getFileTypeColor, truncateFileName } from '@/utils/format';
-import type { STLFile, FileFilters } from '@/types/models';
+import type { STLFile } from '@/types/models';
+import { buildCategoryOptions, extractCategoryIds } from '@/utils/categories';
+import { useFilesPage } from './useFilesPage';
 
 const { Search } = Input;
 const { Option } = Select;
 
 const FilesPage: React.FC = () => {
-  const [filters, setFilters] = useState<FileFilters>({
-    page: 1,
-    page_size: 20,
-  });
-
-  const { data: filesData, isLoading, refetch } = useFiles(filters);
-  const { data: categoriesData } = useCategories();
-  const reclassify = useReclassifyFile();
-  const updateCategories = useUpdateCategories();
-
-  const handleSearch = (value: string) => {
-    setFilters((prev) => ({ ...prev, q: value, page: 1 }));
-  };
-
-  const handleTypeFilter = (value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      type: value as any,
-      page: 1,
-    }));
-  };
-
-  const handleCategoryFilter = (value: string) => {
-    setFilters((prev) => ({ ...prev, category: value, page: 1 }));
-  };
-
-  const handleTableChange = (pagination: any) => {
-    setFilters((prev) => ({
-      ...prev,
-      page: pagination.current,
-      page_size: pagination.pageSize,
-    }));
-  };
-
-  const handleReclassify = (fileId: string) => {
-    reclassify.mutate(fileId);
-  };
-
-  const handleCategoryChange = (fileId: string, categoryIds: string[]) => {
-    updateCategories.mutate({ fileId, categoryIds });
-  };
+  const {
+    files,
+    total,
+    categories,
+    filters,
+    isLoading,
+    isReclassifying,
+    isUpdating,
+    isCategoriesLoading,
+    handleSearch,
+    handleTypeFilter,
+    handleCategoryFilter,
+    handleTableChange,
+    handleReclassify,
+    handleCategoryChange,
+    refetch,
+  } = useFilesPage();
 
   const columns: ColumnsType<STLFile> = [
     {
@@ -91,13 +67,9 @@ const FilesPage: React.FC = () => {
       dataIndex: 'categories',
       key: 'categories',
       width: 300,
-      render: (categories: any[], record: STLFile) => {
-        // Ensure we have an array of category IDs
-        const currentCategoryIds = Array.isArray(categories)
-          ? categories.map(c => c.id).filter(Boolean)
-          : [];
-
-        console.log('File:', record.file_name, 'Categories:', categories, 'IDs:', currentCategoryIds);
+      render: (fileCategories: any[], record: STLFile) => {
+        const currentCategoryIds = extractCategoryIds(fileCategories);
+        const options = buildCategoryOptions(fileCategories, categories);
 
         return (
           <Select
@@ -105,16 +77,13 @@ const FilesPage: React.FC = () => {
             placeholder="Select categories"
             value={currentCategoryIds}
             onChange={(values) => handleCategoryChange(record.id, values)}
-            options={categoriesData?.items.map(cat => ({
-              label: cat.name,
-              value: cat.id,
-            })) || []}
+            options={options}
             style={{ width: '100%' }}
             maxTagCount={2}
             maxCount={3}
             size="small"
-            loading={updateCategories.isPending}
-            disabled={!categoriesData?.items.length}
+            loading={isCategoriesLoading || isUpdating}
+            disabled={!categories.length || isUpdating}
           />
         );
       },
@@ -128,7 +97,7 @@ const FilesPage: React.FC = () => {
           size="small"
           icon={<ReloadOutlined />}
           onClick={() => handleReclassify(record.id)}
-          loading={reclassify.isPending}
+          loading={isReclassifying}
         >
           Reclassify
         </Button>
@@ -166,9 +135,9 @@ const FilesPage: React.FC = () => {
             allowClear
             style={{ width: 200 }}
             onChange={handleCategoryFilter}
-            loading={!categoriesData}
+            loading={isCategoriesLoading}
           >
-            {categoriesData?.items.map((cat) => (
+            {categories.map((cat) => (
               <Option key={cat.name} value={cat.name}>
                 {cat.name}
               </Option>
@@ -180,13 +149,13 @@ const FilesPage: React.FC = () => {
 
         <Table
           columns={columns}
-          dataSource={filesData?.items || []}
+          dataSource={files}
           loading={isLoading}
           rowKey="id"
           pagination={{
             current: filters.page,
             pageSize: filters.page_size,
-            total: filesData?.total || 0,
+            total: total,
             showSizeChanger: true,
             showTotal: (total) => `Total ${total} files`,
           }}

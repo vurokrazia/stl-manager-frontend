@@ -1,32 +1,31 @@
 /**
- * Folders Page - List all folders
+ * Folders Page - List all folders (View)
  */
 
 import React from 'react';
-import { Table, Tag, Select, Space } from 'antd';
+import { Table, Tag, Select, Space, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { FolderOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { useFolders, useUpdateFolderCategories } from '@/hooks/useBrowse';
-import { useCategories } from '@/hooks/useCategories';
+import { FolderOutlined, SearchOutlined } from '@ant-design/icons';
 import type { Folder } from '@/types/models';
+import { buildCategoryOptions, extractCategoryIds } from '@/utils/categories';
+import { useFoldersPage } from './useFoldersPage';
 
 const FoldersPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(20);
-
-  const { data: foldersData, isLoading } = useFolders(page, pageSize);
-  const { data: categoriesData } = useCategories();
-  const updateFolderCategories = useUpdateFolderCategories();
-
-  const handleCategoryChange = (folderId: string, categoryIds: string[]) => {
-    updateFolderCategories.mutate({ folderId, categoryIds });
-  };
-
-  const handleFolderClick = (folder: Folder) => {
-    navigate(`/folders/${folder.id}`);
-  };
+  const {
+    folders,
+    total,
+    categories,
+    page,
+    pageSize,
+    searchText,
+    isLoading,
+    isUpdating,
+    isCategoriesLoading,
+    setSearchText,
+    handleCategoryChange,
+    handleFolderClick,
+    handlePaginationChange,
+  } = useFoldersPage();
 
   const columns: ColumnsType<Folder> = [
     {
@@ -36,10 +35,7 @@ const FoldersPage: React.FC = () => {
       render: (name: string, record: Folder) => (
         <Space>
           <FolderOutlined style={{ fontSize: 18, color: '#faad14' }} />
-          <span
-            style={{ cursor: 'pointer' }}
-            onClick={() => handleFolderClick(record)}
-          >
+          <span style={{ cursor: 'pointer' }} onClick={() => handleFolderClick(record)}>
             {name}
           </span>
           {record.file_count !== undefined && (
@@ -65,10 +61,9 @@ const FoldersPage: React.FC = () => {
       dataIndex: 'categories',
       key: 'categories',
       width: 300,
-      render: (categories: any[], record: Folder) => {
-        const currentCategoryIds = Array.isArray(categories)
-          ? categories.map((c) => c.id).filter(Boolean)
-          : [];
+      render: (folderCategories: any[], record: Folder) => {
+        const currentCategoryIds = extractCategoryIds(folderCategories);
+        const options = buildCategoryOptions(folderCategories, categories);
 
         return (
           <Select
@@ -76,18 +71,13 @@ const FoldersPage: React.FC = () => {
             placeholder="Select categories"
             value={currentCategoryIds}
             onChange={(values) => handleCategoryChange(record.id, values)}
-            options={
-              categoriesData?.items.map((cat) => ({
-                label: cat.name,
-                value: cat.id,
-              })) || []
-            }
+            options={options}
             style={{ width: '100%' }}
             maxTagCount={2}
             maxCount={3}
             size="small"
-            loading={updateFolderCategories.isPending}
-            disabled={!categoriesData?.items.length}
+            loading={isCategoriesLoading || isUpdating}
+            disabled={!categories.length || isUpdating}
           />
         );
       },
@@ -98,28 +88,33 @@ const FoldersPage: React.FC = () => {
     <div>
       <h1 style={{ marginBottom: 24 }}>All Folders</h1>
 
-      <Table
-        columns={columns}
-        dataSource={foldersData?.items || []}
-        loading={isLoading}
-        rowKey="id"
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: foldersData?.total || 0,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          pageSizeOptions: ['20', '50', '100'],
-          showTotal: (total) => `Total ${total} folders`,
-          onChange: (newPage, newPageSize) => {
-            setPage(newPage);
-            if (newPageSize !== pageSize) {
-              setPageSize(newPageSize);
-              setPage(1);
-            }
-          },
-        }}
-      />
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <Input
+          placeholder="Search folders by name..."
+          prefix={<SearchOutlined />}
+          allowClear
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 300 }}
+        />
+
+        <Table
+          columns={columns}
+          dataSource={folders}
+          loading={isLoading}
+          rowKey="id"
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            pageSizeOptions: ['20', '50', '100'],
+            showTotal: (total) => `Total ${total} folders`,
+            onChange: handlePaginationChange,
+          }}
+        />
+      </Space>
     </div>
   );
 };
