@@ -4,7 +4,7 @@
 
 import { httpService } from '@/services/http.service';
 import { ENDPOINTS } from '@/config/api';
-import type { Scan, CreateScanResponse } from '@/types/models';
+import type { Scan, CreateScanResponse, ScanPath } from '@/types/models';
 
 export class ScansRepository {
   /**
@@ -19,6 +19,13 @@ export class ScansRepository {
    */
   async getScanById(id: string): Promise<Scan> {
     return httpService.get<Scan>(`${ENDPOINTS.scans}/${id}`);
+  }
+
+  /**
+   * Get scan paths by scan ID
+   */
+  async getScanPaths(id: string): Promise<ScanPath[]> {
+    return httpService.get<ScanPath[]>(`${ENDPOINTS.scans}/${id}/paths`);
   }
 
   /**

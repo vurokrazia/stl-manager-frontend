@@ -17,10 +17,14 @@ export function useFilesPage() {
 
   // Handlers
   const handleSearch = (value: string) => {
-    setFilters((prev) => ({ ...prev, q: value, page: 1 }));
+    setFilters((prev) => ({
+      ...prev,
+      q: value || undefined,
+      page: 1
+    }));
   };
 
-  const handleTypeFilter = (value: string) => {
+  const handleTypeFilter = (value: string | undefined) => {
     setFilters((prev) => ({
       ...prev,
       type: value as any,
@@ -28,8 +32,12 @@ export function useFilesPage() {
     }));
   };
 
-  const handleCategoryFilter = (value: string) => {
-    setFilters((prev) => ({ ...prev, category: value, page: 1 }));
+  const handleCategoryFilter = (value: string | undefined) => {
+    setFilters((prev) => ({
+      ...prev,
+      category: value,
+      page: 1
+    }));
   };
 
   const handleTableChange = (pagination: any) => {
@@ -37,6 +45,14 @@ export function useFilesPage() {
       ...prev,
       page: pagination.current,
       page_size: pagination.pageSize,
+    }));
+  };
+
+  const handlePaginationChange = (newPage: number, newPageSize: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      page: newPageSize !== prev.page_size ? 1 : newPage,
+      page_size: newPageSize,
     }));
   };
 
@@ -66,6 +82,7 @@ export function useFilesPage() {
     handleTypeFilter,
     handleCategoryFilter,
     handleTableChange,
+    handlePaginationChange,
     handleReclassify,
     handleCategoryChange,
     refetch,

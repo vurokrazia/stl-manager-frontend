@@ -92,7 +92,7 @@ const BrowsePage: React.FC = () => {
           style={{ width: 300 }}
         />
 
-        <Table
+        <Table<Folder>
           columns={columns}
           dataSource={folders}
           loading={isLoading}
@@ -103,9 +103,10 @@ const BrowsePage: React.FC = () => {
             total: total,
             showSizeChanger: true,
             showQuickJumper: true,
-            pageSizeOptions: ['20', '50', '100'],
+            pageSizeOptions: ['20', '50', '100', '250', '500', '1000', '5000'],
             showTotal: (total) => `Total ${total} folders`,
             onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
         />
       </Space>

@@ -72,7 +72,7 @@ export function useUpdateFolderCategories() {
         applyToRAR,
         applyToSubfolders
       }),
-    onSuccess: async (response, { folderId }) => {
+    onSuccess: async (response: any, { folderId }) => {
       message.success('Folder categories updated successfully!');
 
       // Update folder categories in cache immediately
@@ -80,7 +80,7 @@ export function useUpdateFolderCategories() {
         if (oldData) {
           return {
             ...oldData,
-            categories: response.categories || [],
+            categories: response?.categories || [],
           };
         }
         return oldData;

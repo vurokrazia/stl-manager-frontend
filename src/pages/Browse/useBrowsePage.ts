@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBrowse, useUpdateFolderCategories } from '@/hooks/useBrowse';
+import { useFolders, useUpdateFolderCategories } from '@/hooks/useBrowse';
 import { useCategories } from '@/hooks/useCategories';
 import type { Folder } from '@/types/models';
 
@@ -25,13 +25,21 @@ export function useBrowsePage() {
   }, [debouncedSearch]);
 
   // Data fetching
-  const { data: foldersData, isLoading } = useBrowse(page, pageSize, debouncedSearch || undefined);
+  const { data: foldersData, isLoading } = useFolders(page, pageSize, debouncedSearch || undefined);
   const { data: categoriesData } = useCategories();
   const updateFolderCategories = useUpdateFolderCategories();
 
   // Handlers
   const handleCategoryChange = (folderId: string, categoryIds: string[]) => {
-    updateFolderCategories.mutate({ folderId, categoryIds });
+    // Solo actualiza categorías del folder, NO propaga a archivos
+    updateFolderCategories.mutate({
+      folderId,
+      categoryIds,
+      applyToSTL: false,
+      applyToZIP: false,
+      applyToRAR: false,
+      applyToSubfolders: false
+    });
   };
 
   const handleFolderClick = (folder: Folder) => {
@@ -40,10 +48,11 @@ export function useBrowsePage() {
   };
 
   const handlePaginationChange = (newPage: number, newPageSize: number) => {
-    setPage(newPage);
     if (newPageSize !== pageSize) {
       setPageSize(newPageSize);
       setPage(1);
+    } else {
+      setPage(newPage);
     }
   };
 

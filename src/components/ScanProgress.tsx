@@ -3,9 +3,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Modal, Progress, Typography, Space, Spin } from 'antd';
+import { Modal, Progress, Typography, Space, Spin, Divider } from 'antd';
 import { CheckCircleOutlined, SyncOutlined, CloseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useScanStatus } from '@/hooks/useScans';
+import ScanResults from './ScanResults';
 
 const { Text } = Typography;
 
@@ -22,10 +23,16 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ scanId, onClose }) => {
   const isOpen = !!scanId;
   const status = scanStatus?.status || 'pending';
 
-  // Handle nullable Int32 types from backend
-  const progress = scanStatus?.progress?.Int32 ?? scanStatus?.progress ?? 0;
-  const found = scanStatus?.found?.Int32 ?? scanStatus?.found ?? 0;
-  const processed = scanStatus?.processed?.Int32 ?? scanStatus?.processed ?? 0;
+  // Handle nullable Int32 types from backend (Go sql.NullInt32)
+  const extractInt = (val: any): number => {
+    if (val === null || val === undefined) return 0;
+    if (typeof val === 'number') return val;
+    if (typeof val === 'object' && 'Int32' in val) return val.Int32;
+    return 0;
+  };
+  const progress = extractInt(scanStatus?.progress);
+  const found = extractInt(scanStatus?.found);
+  const processed = extractInt(scanStatus?.processed);
   const remaining = found - processed;
 
   // Timer effect - start when scan is running
@@ -164,24 +171,27 @@ const ScanProgress: React.FC<ScanProgressProps> = ({ scanId, onClose }) => {
             )}
 
             {status === 'completed' && (
-              <Space direction="vertical" size="small">
-                <Text type="success">Successfully scanned {found} files!</Text>
-                <Text type="secondary">Processed: {processed} files</Text>
-                {elapsedTime > 0 && (
-                  <Space size="small">
-                    <ClockCircleOutlined style={{ color: '#52c41a' }} />
-                    <Text type="secondary">
-                      Total time: <Text strong>{formatElapsedTime(elapsedTime)}</Text>
-                    </Text>
-                  </Space>
-                )}
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                <Space direction="vertical" size="small">
+                  <Text type="success">Successfully scanned {found} files!</Text>
+                  {elapsedTime > 0 && (
+                    <Space size="small">
+                      <ClockCircleOutlined style={{ color: '#52c41a' }} />
+                      <Text type="secondary">
+                        Total time: <Text strong>{formatElapsedTime(elapsedTime)}</Text>
+                      </Text>
+                    </Space>
+                  )}
+                </Space>
+                <Divider>Scan Details</Divider>
+                <ScanResults scanId={scanId} />
               </Space>
             )}
 
             {status === 'failed' && (
               <>
-                {scanStatus?.error?.String && (
-                  <Text type="danger">{scanStatus.error.String}</Text>
+                {(scanStatus?.error as any)?.String && (
+                  <Text type="danger">{(scanStatus?.error as any).String}</Text>
                 )}
                 <Space direction="vertical" size="small">
                   <Text>Files Found: {found}</Text>

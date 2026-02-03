@@ -9,6 +9,7 @@ import FilesPage from '@/pages/Files/FilesPage';
 import BrowsePage from '@/pages/Browse/BrowsePage';
 import FoldersPage from '@/pages/Folders/FoldersPage';
 import FolderDetailPage from '@/pages/Folders/FolderDetailPage';
+import CategoriesPage from '@/pages/Categories';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/browse" element={<BrowsePage />} />
         <Route path="/all-folders" element={<FoldersPage />} />
         <Route path="/files" element={<FilesPage />} />
+        <Route path="/categories" element={<CategoriesPage />} />
         <Route path="/folders/:id" element={<FolderDetailPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

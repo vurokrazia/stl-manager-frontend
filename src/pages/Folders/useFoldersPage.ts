@@ -31,7 +31,15 @@ export function useFoldersPage() {
 
   // Handlers
   const handleCategoryChange = (folderId: string, categoryIds: string[]) => {
-    updateFolderCategories.mutate({ folderId, categoryIds });
+    // Solo actualiza categorías del folder, NO propaga a archivos
+    updateFolderCategories.mutate({
+      folderId,
+      categoryIds,
+      applyToSTL: false,
+      applyToZIP: false,
+      applyToRAR: false,
+      applyToSubfolders: false
+    });
   };
 
   const handleFolderClick = (folder: Folder) => {

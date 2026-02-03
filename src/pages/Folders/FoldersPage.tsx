@@ -109,9 +109,10 @@ const FoldersPage: React.FC = () => {
             total: total,
             showSizeChanger: true,
             showQuickJumper: true,
-            pageSizeOptions: ['20', '50', '100'],
+            pageSizeOptions: ['20', '50', '100', '250', '500', '1000', '5000'],
             showTotal: (total) => `Total ${total} folders`,
             onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
         />
       </Space>

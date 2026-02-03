@@ -9,6 +9,7 @@ import { message } from 'antd';
 export const QUERY_KEYS = {
   scans: 'scans',
   scan: 'scan',
+  scanPaths: 'scanPaths',
 } as const;
 
 /**
@@ -38,6 +39,18 @@ export function useScan(id: string, enabled = true) {
  */
 export function useScanStatus(id: string, enabled = true) {
   return useScan(id, enabled);
+}
+
+/**
+ * Hook to fetch scan paths by scan ID
+ */
+export function useScanPaths(id: string, enabled = true) {
+  return useQuery({
+    queryKey: [QUERY_KEYS.scanPaths, id],
+    queryFn: () => scansRepository.getScanPaths(id),
+    enabled: enabled && !!id,
+    staleTime: Infinity, // These results are final
+  });
 }
 
 /**

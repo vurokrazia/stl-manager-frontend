@@ -264,9 +264,10 @@ const FolderDetailPage: React.FC = () => {
               total: folderData?.pagination?.total || 0,
               showSizeChanger: true,
               showQuickJumper: true,
-              pageSizeOptions: ['20', '50', '100'],
+              pageSizeOptions: ['20', '50', '100', '250', '500', '1000', '5000'],
               showTotal: (total) => `Total ${total} items`,
               onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
             }}
             loading={isLoading}
           />

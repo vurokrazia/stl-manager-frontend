@@ -100,19 +100,21 @@ export function useFolderDetailPage() {
   // Handlers
   const handleFolderCategoryChange = (categoryIds: string[]) => {
     if (id) {
+      // Solo actualiza categorías del folder, NO propaga a archivos
       updateFolderCategories.mutate({
         folderId: id,
         categoryIds,
-        applyToSTL,
-        applyToZIP,
-        applyToRAR,
-        applyToSubfolders
+        applyToSTL: false,
+        applyToZIP: false,
+        applyToRAR: false,
+        applyToSubfolders: false
       });
     }
   };
 
   const handleSyncCategories = () => {
     if (id && folderData) {
+      // Sincroniza categorías del folder a archivos según flags
       const currentCategoryIds = folderData.categories.map((c) => c.id);
       updateFolderCategories.mutate({
         folderId: id,
@@ -126,7 +128,15 @@ export function useFolderDetailPage() {
   };
 
   const handleSubfolderCategoryChange = (subfolderId: string, categoryIds: string[]) => {
-    updateFolderCategories.mutate({ folderId: subfolderId, categoryIds });
+    // Solo actualiza categorías de la subfolder, NO propaga
+    updateFolderCategories.mutate({
+      folderId: subfolderId,
+      categoryIds,
+      applyToSTL: false,
+      applyToZIP: false,
+      applyToRAR: false,
+      applyToSubfolders: false
+    });
   };
 
   const handleFileCategoryChange = (fileId: string, categoryIds: string[]) => {

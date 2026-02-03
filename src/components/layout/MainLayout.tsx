@@ -10,6 +10,7 @@ import {
   ScanOutlined,
   FolderOpenOutlined,
   RobotOutlined,
+  TagsOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCreateScan } from '@/hooks/useScans';
@@ -51,6 +52,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       key: '/files',
       icon: <FileOutlined />,
       label: 'All Files',
+    },
+    {
+      key: '/categories',
+      icon: <TagsOutlined />,
+      label: 'Categories',
     },
   ];
 

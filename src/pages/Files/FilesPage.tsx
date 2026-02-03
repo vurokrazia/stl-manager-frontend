@@ -28,6 +28,7 @@ const FilesPage: React.FC = () => {
     handleTypeFilter,
     handleCategoryFilter,
     handleTableChange,
+    handlePaginationChange,
     handleReclassify,
     handleCategoryChange,
     refetch,
@@ -122,6 +123,7 @@ const FilesPage: React.FC = () => {
           <Select
             placeholder="Filter by type"
             allowClear
+            value={filters.type}
             style={{ width: 150 }}
             onChange={handleTypeFilter}
           >
@@ -133,6 +135,7 @@ const FilesPage: React.FC = () => {
           <Select
             placeholder="Filter by category"
             allowClear
+            value={filters.category}
             style={{ width: 200 }}
             onChange={handleCategoryFilter}
             loading={isCategoriesLoading}
@@ -157,7 +160,10 @@ const FilesPage: React.FC = () => {
             pageSize: filters.page_size,
             total: total,
             showSizeChanger: true,
+            pageSizeOptions: ['20', '50', '100', '250', '500', '1000', '5000'],
             showTotal: (total) => `Total ${total} files`,
+            onChange: handlePaginationChange,
+            onShowSizeChange: handlePaginationChange,
           }}
           onChange={handleTableChange}
         />

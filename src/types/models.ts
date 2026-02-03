@@ -40,6 +40,10 @@ export interface FilesListResponse {
 
 export interface CategoriesListResponse {
   items: Category[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
 }
 
 export interface CreateScanResponse {
@@ -103,4 +107,38 @@ export interface FolderDetailResponse {
     page_size: number;
     total_pages: number;
   };
+}
+
+// Category CRUD Types
+export interface CreateCategoryRequest {
+  name: string;
+}
+
+export interface UpdateCategoryRequest {
+  name: string;
+}
+
+export interface CreateCategoryResponse {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface UpdateCategoryResponse {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ScanPath {
+  id: string;
+  scan_id: string;
+  root_path: string;
+  files_found: number;
+  files_inserted: number;
+  files_updated: number;
+  folders_found: number;
+  folders_inserted: number;
+  folders_updated: number;
+  created_at: string;
 }

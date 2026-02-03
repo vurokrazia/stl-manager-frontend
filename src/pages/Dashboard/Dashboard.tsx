@@ -39,7 +39,6 @@ const Dashboard: React.FC = () => {
   // Calculate statistics
   const stlCount = files.filter((f) => f.type === 'stl').length;
   const zipCount = files.filter((f) => f.type === 'zip').length;
-  const rarCount = files.filter((f) => f.type === 'rar').length;
   const totalSize = files.reduce((acc, f) => acc + f.size, 0);
 
   return (
